@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTG 指揮官戰情室 | EDH Commander Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; /* Slate 200 */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        /* Mana Symbol Styles */
+        .mana-symbol {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-family: serif;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin: 0 2px;
+            color: #333;
+        }
+        .mana-w { background: #f8f6d8; }
+        .mana-u { background: #c1d7e9; }
+        .mana-b { background: #bab1ab; }
+        .mana-r { background: #e49977; }
+        .mana-g { background: #a3c095; }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Glassmorphism for tools */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* AI Chat Styles & Link Styles */
+        .prose strong {
+            color: #fbbf24; /* Amber 400 */
+        }
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5em;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .prose p {
+            margin-bottom: 0.5em;
+        }
+        /* Links in AI response and others */
+        a {
+            transition: color 0.2s;
+        }
+        .prose a, .card-link {
+            color: #60a5fa; /* Blue 400 */
+            text-decoration: none;
+            border-bottom: 1px dashed #60a5fa;
+        }
+        .prose a:hover, .card-link:hover {
+            color: #93c5fd; /* Blue 300 */
+            border-bottom-style: solid;
+        }
+
+        /* Market Trend Styles */
+        .trend-card {
+            transition: all 0.3s ease;
+        }
+        .trend-up {
+            border-left: 4px solid #10b981; /* Green */
+        }
+        .trend-down {
+            border-left: 4px solid #ef4444; /* Red */
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-slate-900/90 sticky top-0 z-50 border-b border-slate-700 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-dragon text-amber-500 text-2xl mr-3"></i>
+                    <span class="font-bold text-xl tracking-wider text-white">EDH 戰情室</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#intro" class="hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition">賽制介紹</a>
+                        <a href="#hot-commanders" class="hover:bg-slate-700 text-amber-300 px-3 py-2 rounded-md text-sm font-medium transition"><i class="fa-solid fa-fire mr-1"></i>熱議指揮官</a>
+                        <a href="#market" class="hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition">市場趨勢</a>
+                        <a href="#advisor" class="text-amber-400 hover:text-amber-300 hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition"><i class="fa-solid fa-sparkles mr-1"></i> AI 軍師</a>
+                        <a href="#tools" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-md text-sm font-medium transition shadow-lg shadow-amber-600/20">小工具</a>
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="bg-slate-800 p-2 rounded-md text-gray-400 hover:text-white hover:bg-slate-700 focus:outline-none">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden bg-slate-800" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#intro" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">賽制介紹</a>
+                <a href="#hot-commanders" class="text-amber-300 block px-3 py-2 rounded-md text-base font-medium">熱議指揮官</a>
+                <a href="#market" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">市場趨勢</a>
+                <a href="#advisor" class="text-amber-400 font-bold block px-3 py-2 rounded-md text-base">AI 軍師</a>
+                <a href="#tools" class="text-amber-400 font-bold block px-3 py-2 rounded-md text-base">生命計數器</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative bg-slate-900 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/40 z-10"></div>
+            <!-- Abstract Background simulating a playmat -->
+            <div class="w-full h-full bg-[url('https://images.unsplash.com/photo-1636955860106-9eb89e576026?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30"></div>
+        </div>
+        <div class="relative z-20 max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                歡迎來到 <span class="text-amber-500">指揮官</span> 世界
+            </h1>
+            <p class="mt-6 text-xl text-gray-300 max-w-3xl">
+                Elder Dragon Highlander (EDH) 是魔法風雲會最受歡迎的多人休閒賽制。選擇一位傳奇生物作為你的指揮官，帶領 99 張獨一無二的卡牌，與朋友們展開史詩般的對決。
+            </p>
+            <div class="mt-10 flex gap-4">
+                <a href="#tools" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-slate-900 bg-amber-500 hover:bg-amber-400 transition shadow-lg shadow-amber-500/30">
+                    <i class="fa-solid fa-heart-pulse mr-2"></i> 開始對局 (計血器)
+                </a>
+                <a href="#hot-commanders" class="inline-flex items-center justify-center px-5 py-3 border border-slate-500 text-base font-medium rounded-md text-white hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-fire mr-2 text-red-500"></i> 熱議指揮官
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intro Section -->
+    <section id="intro" class="py-16 bg-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-white sm:text-4xl">基礎規則</h2>
+                <p class="mt-4 text-gray-400">簡單三點，快速上手</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Rule 1 -->
+                <div class="bg-slate-700 p-6 rounded-xl border border-slate-600 card-hover transition duration-300">
+                    <div class="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center mb-4 text-slate-900 text-xl font-bold">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">100 張卡牌</h3>
+                    <p class="text-gray-300">
+                        包含 1 張指揮官與 99 張套牌。除基本地外，每張牌只能放 <span class="text-amber-400 font-bold">一張</span> (Singleton)。
+                    </p>
+                </div>
+                <!-- Rule 2 -->
+                <div class="bg-slate-700 p-6 rounded-xl border border-slate-600 card-hover transition duration-300">
+                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4 text-white text-xl font-bold">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">顏色標識 (Color Identity)</h3>
+                    <p class="text-gray-300">
+                        套牌中的所有卡牌顏色符號，必須包含在指揮官的顏色標識之內。
+                    </p>
+                </div>
+                <!-- Rule 3 -->
+                <div class="bg-slate-700 p-6 rounded-xl border border-slate-600 card-hover transition duration-300">
+                    <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mb-4 text-white text-xl font-bold">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">40 點生命</h3>
+                    <p class="text-gray-300">
+                        遊戲通常為 4 人混戰，初始生命值為 40 點。若受到同一指揮官 21 點戰鬥傷害也會落敗。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Commanders Section (New Feature) -->
+    <section id="hot-commanders" class="py-16 bg-slate-900 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-3xl font-extrabold text-white">
+                        <i class="fa-solid fa-fire text-red-500 mr-2"></i>社群熱議指揮官 (Top 5)
+                    </h2>
+                    <p class="text-gray-400 mt-2 text-sm">
+                        AI 分析本週討論熱度，提供戰術、Combo 與組牌建議 (點擊卡名查看詳情)。
+                    </p>
+                </div>
+                <button onclick="updateTrendingCommanders()" id="trending-refresh-btn" class="bg-slate-800 border border-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded shadow transition flex items-center text-sm">
+                    <i class="fa-solid fa-sync mr-2" id="trending-spinner"></i> 分析熱門戰術
+                </button>
+            </div>
+
+            <div id="trending-list" class="grid grid-cols-1 gap-8">
+                <!-- Content injected by JS -->
+                <div class="text-center text-gray-500 py-12 glass-panel rounded-xl">
+                    <i class="fa-solid fa-dragon text-4xl mb-4 text-slate-600"></i>
+                    <p>點擊「分析熱門戰術」以載入本週最夯指揮官...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Trends Section -->
+    <section id="market" class="py-16 bg-slate-800 border-t border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-3xl font-extrabold text-white">
+                        <i class="fa-solid fa-chart-line text-amber-500 mr-2"></i>市場趨勢 (近30天)
+                    </h2>
+                    <p class="text-gray-400 mt-2 text-sm">
+                        由 AI 分析市場熱點，並即時抓取 Scryfall 價格數據 (點擊查看 Scryfall 頁面)。
+                    </p>
+                </div>
+                <button onclick="updateMarketData()" id="market-refresh-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded shadow transition flex items-center text-sm">
+                    <i class="fa-solid fa-sync mr-2" id="market-spinner"></i> 更新數據
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Winners -->
+                <div class="glass-panel rounded-xl p-5 border-t-4 border-green-500">
+                    <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center">
+                        <i class="fa-solid fa-arrow-trend-up mr-2"></i> 漲幅榜 (Top 5 Winners)
+                    </h3>
+                    <div id="winners-list" class="space-y-3">
+                        <div class="text-center text-gray-500 py-10">
+                            <p>點擊「更新數據」以載入...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Losers -->
+                <div class="glass-panel rounded-xl p-5 border-t-4 border-red-500">
+                    <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center">
+                        <i class="fa-solid fa-arrow-trend-down mr-2"></i> 跌幅榜 (Top 5 Losers)
+                    </h3>
+                    <div id="losers-list" class="space-y-3">
+                        <div class="text-center text-gray-500 py-10">
+                            <p>點擊「更新數據」以載入...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-xs text-gray-600 mt-4 text-center">*註：漲跌名單與幅度百分比由 AI 根據網路資訊分析生成，卡圖與現價為 Scryfall 即時資料。</p>
+        </div>
+    </section>
+
+    <!-- AI Advisor Section -->
+    <section id="advisor" class="py-16 bg-slate-900 relative border-t border-slate-800">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <span class="inline-block p-2 rounded-full bg-indigo-900/50 text-indigo-300 text-sm font-semibold tracking-wide uppercase mb-2 border border-indigo-500/30">Powered by Gemini</span>
+                <h2 class="text-3xl font-extrabold text-white sm:text-4xl">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-2"></i> AI 鵬洛客軍師
+                </h2>
+                <p class="mt-4 text-gray-400">
+                    遇到規則疑問？想找特定功能的卡牌？或是需要組牌靈感？<br>
+                    輸入你的問題，讓 AI 協助你征服戰場。
+                </p>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl">
+                <div class="mb-6">
+                    <label for="ai-prompt" class="block text-sm font-medium text-gray-300 mb-2">請問軍師...</label>
+                    <textarea id="ai-prompt" rows="3" 
+                        class="w-full bg-slate-800 border border-slate-600 rounded-lg p-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition resize-none"
+                        placeholder="例如：我有藍紅色的神器套牌，請推薦幾張好用的抽牌咒語... 或 請問死觸和踐踏同時作用會發生什麼事？"></textarea>
+                </div>
+                
+                <div class="flex justify-end mb-6">
+                    <button onclick="askAdvisor()" id="ask-btn" class="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg transform transition hover:-translate-y-1 flex items-center">
+                        <span id="btn-text">召喚軍師建議 ✨</span>
+                        <i id="btn-spinner" class="fa-solid fa-circle-notch fa-spin ml-2 hidden"></i>
+                    </button>
+                </div>
+
+                <!-- Response Area -->
+                <div id="ai-response-container" class="hidden">
+                    <div class="border-t border-slate-700 pt-6">
+                        <h3 class="text-lg font-bold text-amber-400 mb-3"><i class="fa-solid fa-comment-dots mr-2"></i>軍師的回覆：</h3>
+                        <div id="ai-response" class="prose prose-invert prose-sm max-w-none text-gray-300 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <!-- AI text goes here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error Message -->
+                <div id="ai-error" class="hidden mt-4 bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg relative" role="alert">
+                    <span class="block sm:inline" id="error-text">發生錯誤，請稍後再試。</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commanders Showcase (Static) -->
+    <section id="commanders" class="py-16 bg-slate-800 border-t border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-extrabold text-white mb-6">熱門指揮官風格 (範例)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-xl p-1 border border-indigo-500/30 card-hover">
+                    <div class="bg-slate-900 rounded-lg p-5 h-full">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-indigo-300">神器共鳴 (Artifacts)</h3>
+                            <i class="fa-solid fa-cogs text-gray-400"></i>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">
+                            利用大量神器產生的協同效應。通常包含藍色與紅色。
+                        </p>
+                        <div class="flex gap-2">
+                            <span class="mana-symbol mana-u text-xs">U</span>
+                            <span class="mana-symbol mana-r text-xs">R</span>
+                            <span class="mana-symbol mana-w text-xs">W</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">代表人物: 
+                            <a href="https://scryfall.com/search?q=Breya%2C+Etherium+Shaper" target="_blank" class="card-link">Breya</a>, 
+                            <a href="https://scryfall.com/search?q=Urza%2C+Lord+High+Artificer" target="_blank" class="card-link">Urza</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-gradient-to-br from-green-900 to-slate-900 rounded-xl p-1 border border-green-500/30 card-hover">
+                    <div class="bg-slate-900 rounded-lg p-5 h-full">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-green-300">落地強權 (Landfall)</h3>
+                            <i class="fa-solid fa-tree text-gray-400"></i>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">
+                            每當地牌進戰場時觸發強大效應。你需要很多的地牌和加速手段。
+                        </p>
+                        <div class="flex gap-2">
+                            <span class="mana-symbol mana-g text-xs">G</span>
+                            <span class="mana-symbol mana-u text-xs">U</span>
+                            <span class="mana-symbol mana-r text-xs">R</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">代表人物: 
+                            <a href="https://scryfall.com/search?q=Omnath%2C+Locus+of+Creation" target="_blank" class="card-link">Omnath</a>, 
+                            <a href="https://scryfall.com/search?q=Tatyova%2C+Benthic+Druid" target="_blank" class="card-link">Tatyova</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-gradient-to-br from-red-900 to-slate-900 rounded-xl p-1 border border-red-500/30 card-hover">
+                    <div class="bg-slate-900 rounded-lg p-5 h-full">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-red-300">部族快攻 (Tribal)</h3>
+                            <i class="fa-solid fa-users text-gray-400"></i>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">
+                            專注於特定生物類別（如龍、吸血鬼、妖精），彼此互相強化。
+                        </p>
+                        <div class="flex gap-2">
+                            <span class="mana-symbol mana-w text-xs">W</span>
+                            <span class="mana-symbol mana-u text-xs">U</span>
+                            <span class="mana-symbol mana-b text-xs">B</span>
+                            <span class="mana-symbol mana-r text-xs">R</span>
+                            <span class="mana-symbol mana-g text-xs">G</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">代表人物: 
+                            <a href="https://scryfall.com/search?q=The+Ur-Dragon" target="_blank" class="card-link">The Ur-Dragon</a>, 
+                            <a href="https://scryfall.com/search?q=Edgar+Markov" target="_blank" class="card-link">Edgar Markov</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section: Life Counter -->
+    <section id="tools" class="py-16 bg-slate-900 border-t border-slate-700">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-extrabold text-amber-500"><i class="fa-solid fa-calculator mr-2"></i>戰局工具</h2>
+                <button onclick="resetLife()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded shadow transition">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> 重置 40
+                </button>
+            </div>
+
+            <!-- 4 Player Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                <!-- Center Decoration -->
+                <div class="hidden md:flex absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-800 rounded-full p-4 border-4 border-slate-700 z-10">
+                    <span class="text-2xl font-bold text-slate-500">VS</span>
+                </div>
+
+                <!-- Player 1 -->
+                <div class="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-white"></div>
+                    <input type="text" value="玩家 1" class="bg-transparent text-center text-gray-400 font-bold mb-4 focus:outline-none focus:text-white border-b border-transparent focus:border-white transition" />
+                    
+                    <div class="flex items-center gap-6">
+                        <button onclick="changeLife(1, -1)" class="w-12 h-12 rounded-full bg-slate-700/50 hover:bg-red-500/20 text-red-400 hover:text-red-200 text-2xl font-bold transition flex items-center justify-center border border-slate-600">-</button>
+                        <span id="p1-life" class="text-6xl font-mono font-bold text-white tracking-tighter">40</span>
+                        <button onclick="changeLife(1, 1)" class="w-12 h-12 rounded-full bg-slate-700/50 hover:bg-green-500/20 text-green-400 hover:text-green-200 text-2xl font-bold transition flex items-center justify-center border border-slate-600">+</button>
+                    </div>
+                </div>
+
+                <!-- Player 2 -->
+                <div class="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-blue-500"></div>
+                    <input type="text" value="玩家 2" class="bg-transparent text-center text-gray-400 font-bold mb-4 focus:outline-none focus:text-white border-b border-transparent focus:border-blue-500 transition" />
+                    
+                    <div class="flex items-center gap-6">
+                        <button onclick="changeLife(2, -1)" class="w-12 h-12 rounded-full bg-slate-700/50 hover:bg-red-500/20 text-red-400 hover:text-red-200 text-2xl font-bold transition flex items-center justify-center border border-slate-600">-</button>
+                        <span id="p2-life" class="text-6xl font-mono font-bold text-white tracking-tighter">40</span>
+                        <button onclick="changeLife(2, 1)" class="w-12 h-12 rounded-full bg-slate-700/50 hover:bg-green-500/20 text-green-400 hover:text-green-200 text-2xl font-bold transition flex items-center justify-center border border-slate-600">+</button>
+                    </div>
+                </div>
+
+                <!-- Player 3 -->
+                <div class="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-black"></div>
+                    <input type="text" value="玩家 3" class="bg-transparent text-center text-gray-400 font-bold mb-4 focus:outline-none focus:text-white border-b border-transparent focus:border-gray-500 transition" />
+                    
+                    <div class="flex items-center gap-6">
+                        <button onclick="changeLife(3, -1)" class="w-12 h-12 rounded-full bg-slate-700/50 hover:bg-red-500/20 text-red-400 hover:text-red-200 text-2xl font-bold transition flex items-center justify-center border border-slate-600">-</button>
+                        <span id="p3-life" class="text-6xl font-mono font-bold text-white tracking-tighter">40</span>
+                        <button onclick="changeLife(3, 1)" class="w-12 h-12 rounded-full bg-slate-700/50 hover:bg-green-500/20 text-green-400 hover:text-green-200 text-2xl font-bold transition flex items-center justify-center border border-slate-600">+</button>
+                    </div>
+                </div>
+
+                <!-- Player 4 -->
+                <div class="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+                    <input type="text" value="玩家 4" class="bg-transparent text-center text-gray-400 font-bold mb-4 focus:outline-none focus:text-white border-b border-transparent focus:border-red-500 transition" />
+                    
+                    <div class="flex items-center gap-6">
+                        <button onclick="changeLife(4, -1)" class="w-12 h-12 rounded-full bg-slate-700/50 hover:bg-red-500/20 text-red-400 hover:text-red-200 text-2xl font-bold transition flex items-center justify-center border border-slate-600">-</button>
+                        <span id="p4-life" class="text-6xl font-mono font-bold text-white tracking-tighter">40</span>
+                        <button onclick="changeLife(4, 1)" class="w-12 h-12 rounded-full bg-slate-700/50 hover:bg-green-500/20 text-green-400 hover:text-green-200 text-2xl font-bold transition flex items-center justify-center border border-slate-600">+</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Dice Roller -->
+            <div class="mt-8 text-center">
+                <button onclick="rollDice()" class="bg-slate-800 border border-slate-600 hover:bg-slate-700 text-gray-300 px-6 py-2 rounded-full text-sm transition">
+                    <i class="fa-solid fa-dice-d20 mr-2"></i> 擲骰子 (D20)
+                </button>
+                <div id="dice-result" class="mt-2 text-amber-500 font-bold h-6"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0 text-center md:text-left">
+                    <h3 class="text-lg font-bold text-white">MTG 指揮官戰情室</h3>
+                    <p class="text-slate-500 text-sm mt-1">Made by AI for MTG Fans</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-slate-400 hover:text-white"><i class="fa-brands fa-github text-2xl"></i></a>
+                    <a href="#" class="text-slate-400 hover:text-blue-400"><i class="fa-brands fa-twitter text-2xl"></i></a>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-slate-800 pt-8 text-center md:text-left">
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    本網站為非官方粉絲內容。Magic: The Gathering (魔法風雲會) 及其相關標誌、符號、名稱均為 Wizards of the Coast (威世智) 的財產。
+                    <br>This website is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Script -->
+    <script>
+        // --- Gemini API Configuration ---
+        const apiKey = ""; // Running in environment that injects key
+
+        async function askAdvisor() {
+            const promptInput = document.getElementById('ai-prompt');
+            const promptText = promptInput.value.trim();
+            const responseContainer = document.getElementById('ai-response-container');
+            const responseDiv = document.getElementById('ai-response');
+            const errorDiv = document.getElementById('ai-error');
+            const errorText = document.getElementById('error-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const btnText = document.getElementById('btn-text');
+            const askBtn = document.getElementById('ask-btn');
+
+            if (!promptText) return;
+
+            // UI Loading State
+            askBtn.disabled = true;
+            askBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            btnSpinner.classList.remove('hidden');
+            btnText.textContent = "AI 思考中...";
+            errorDiv.classList.add('hidden');
+            responseContainer.classList.add('hidden');
+
+            try {
+                // Call Gemini API
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: promptText }]
+                        }],
+                        systemInstruction: {
+                            parts: [{ text: "你是魔法風雲會 (Magic: The Gathering) 的資深裁判與 EDH 指揮官賽制專家。請用繁體中文回答玩家關於規則互動、單卡推薦、或組牌策略的問題。回答請簡潔有力，排版清晰。若推薦卡牌，請使用 Markdown 連結格式：[Card Name](https://scryfall.com/search?q=Card+Name) 方便玩家查看。" }]
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (aiText) {
+                    // Render Markdown (Links will be clickable)
+                    responseDiv.innerHTML = marked.parse(aiText);
+                    // Force links to open in new tab
+                    const links = responseDiv.querySelectorAll('a');
+                    links.forEach(link => {
+                        link.target = '_blank';
+                        link.classList.add('text-blue-400', 'hover:underline');
+                    });
+                    
+                    responseContainer.classList.remove('hidden');
+                    // Scroll to response
+                    responseContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    throw new Error("No response from AI");
+                }
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                errorText.textContent = "與鵬洛客火花連結失敗，請稍後再試。(API Error)";
+                errorDiv.classList.remove('hidden');
+            } finally {
+                // Reset UI
+                askBtn.disabled = false;
+                askBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                btnSpinner.classList.add('hidden');
+                btnText.textContent = "召喚軍師建議 ✨";
+            }
+        }
+
+        // --- Trending Commanders Logic ---
+        async function updateTrendingCommanders() {
+            const refreshBtn = document.getElementById('trending-refresh-btn');
+            const spinner = document.getElementById('trending-spinner');
+            const container = document.getElementById('trending-list');
+
+            // UI Loading State
+            refreshBtn.disabled = true;
+            spinner.classList.add('fa-spin');
+            container.innerHTML = '<div class="text-center text-gray-500 py-12 glass-panel rounded-xl"><i class="fa-solid fa-circle-notch fa-spin text-4xl mb-4 text-amber-500"></i><p>AI 正在分析本週社群熱門趨勢...</p></div>';
+
+            try {
+                const promptText = `
+                    Generate a JSON object containing an array 'commanders' with 5 items.
+                    Identify 5 popular or trending Magic: The Gathering Legendary Creatures (Commanders) from recent online discussions or popular sets.
+                    For each card, provide:
+                    - 'name' (English exact card name)
+                    - 'pros' (Traditional Chinese, brief strengths)
+                    - 'usage' (Traditional Chinese, brief strategy summary)
+                    - 'combo' (Traditional Chinese, name 1 key combo or synergy)
+                    - 'recommendations' (Traditional Chinese, list of 3-4 specific card names)
+                    
+                    IMPORTANT: For the 'combo' and 'recommendations' fields, format any specific card names as Markdown links pointing to Scryfall search queries, e.g. [Sol Ring](https://scryfall.com/search?q=Sol+Ring).
+                    
+                    Format:
+                    {
+                        "commanders": [
+                            {
+                                "name": "Atraxa, Praetors' Voice",
+                                "pros": "...",
+                                "usage": "...",
+                                "combo": "...",
+                                "recommendations": "..."
+                            }
+                        ]
+                    }
+                    Return ONLY valid JSON.
+                `;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                const data = await response.json();
+                const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const trendingData = JSON.parse(jsonText);
+
+                container.innerHTML = ''; // Clear loading
+
+                for (const cmd of trendingData.commanders) {
+                    try {
+                        const scryfallRes = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(cmd.name)}`);
+                        const card = await scryfallRes.ok ? await scryfallRes.json() : { image_uris: { art_crop: 'https://via.placeholder.com/400x200?text=No+Image' }, scryfall_uri: '#' };
+                        const imgUrl = card.image_uris?.art_crop || card.image_uris?.normal || '';
+                        const cardLink = card.scryfall_uri || `https://scryfall.com/search?q=${encodeURIComponent(cmd.name)}`;
+                        
+                        // Parse Markdown in recommendations/combo fields
+                        const comboHtml = marked.parseInline(cmd.combo);
+                        const recsHtml = marked.parseInline(cmd.recommendations);
+
+                        const html = `
+                            <div class="glass-panel rounded-xl overflow-hidden flex flex-col md:flex-row hover:border-amber-500/50 transition duration-300 border border-transparent">
+                                <a href="${cardLink}" target="_blank" class="md:w-1/3 h-64 md:h-auto relative overflow-hidden group block cursor-pointer">
+                                    <img src="${imgUrl}" alt="${cmd.name}" class="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
+                                    <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/80 to-transparent"></div>
+                                    <div class="absolute bottom-4 left-4">
+                                        <h3 class="text-2xl font-bold text-white shadow-black drop-shadow-lg group-hover:text-amber-400 transition">${cmd.name} <i class="fa-solid fa-external-link-alt text-xs opacity-0 group-hover:opacity-100"></i></h3>
+                                        <p class="text-gray-300 text-sm">${card.type_line || 'Legendary Creature'}</p>
+                                    </div>
+                                </a>
+                                <div class="p-6 md:w-2/3 flex flex-col justify-center space-y-4">
+                                    <div>
+                                        <h4 class="text-amber-400 font-bold mb-1"><i class="fa-solid fa-thumbs-up mr-2"></i>優點 (Pros)</h4>
+                                        <p class="text-gray-300 text-sm">${cmd.pros}</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-blue-400 font-bold mb-1"><i class="fa-solid fa-chess-knight mr-2"></i>用法與戰術 (Usage)</h4>
+                                        <p class="text-gray-300 text-sm">${cmd.usage}</p>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 class="text-purple-400 font-bold mb-1"><i class="fa-solid fa-link mr-2"></i>關鍵 Combo</h4>
+                                            <div class="text-gray-400 text-sm bg-slate-800/50 p-2 rounded border border-slate-700 prose prose-invert prose-sm">
+                                                ${comboHtml}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-green-400 font-bold mb-1"><i class="fa-solid fa-list-check mr-2"></i>建議搭配 (Tech)</h4>
+                                            <div class="text-gray-400 text-sm bg-slate-800/50 p-2 rounded border border-slate-700 prose prose-invert prose-sm">
+                                                ${recsHtml}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += html;
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+                
+                // Add target _blank to dynamically generated links
+                container.querySelectorAll('a').forEach(a => a.target = "_blank");
+
+            } catch (error) {
+                console.error("Trending Commanders Error:", error);
+                container.innerHTML = '<div class="text-red-400 text-center py-8">數據載入失敗，請稍後再試。</div>';
+            } finally {
+                refreshBtn.disabled = false;
+                spinner.classList.remove('fa-spin');
+            }
+        }
+
+        // --- Market Data Logic ---
+        async function updateMarketData() {
+            const refreshBtn = document.getElementById('market-refresh-btn');
+            const spinner = document.getElementById('market-spinner');
+            const winnersList = document.getElementById('winners-list');
+            const losersList = document.getElementById('losers-list');
+            
+            // UI Loading State
+            refreshBtn.disabled = true;
+            spinner.classList.add('fa-spin');
+            winnersList.innerHTML = '<div class="text-center text-gray-500 py-4"><i class="fa-solid fa-circle-notch fa-spin"></i> AI 分析中...</div>';
+            losersList.innerHTML = '<div class="text-center text-gray-500 py-4"><i class="fa-solid fa-circle-notch fa-spin"></i> AI 分析中...</div>';
+
+            try {
+                // 1. Ask Gemini for the list of movers WITH percentage estimates
+                const promptText = `
+                    Generate a JSON object containing two arrays: 'winners' and 'losers'.
+                    List 5 Magic: The Gathering cards that are known to have increased in price significantly in the last 30 days (Winners).
+                    List 5 that have decreased (Losers).
+                    Focus on famous EDH staples or recent set cards.
+                    For each card, provide an estimated percentage change string (e.g., "+50%", "-15%").
+                    Format: {
+                        "winners": [{"name": "Card Name", "percentage": "+20%"}, ...],
+                        "losers": [{"name": "Card Name", "percentage": "-10%"}, ...]
+                    }
+                    Return ONLY valid JSON.
+                `;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                const data = await response.json();
+                const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const marketData = JSON.parse(jsonText);
+
+                // 2. Fetch Card Data from Scryfall for each card
+                async function renderCards(cardList, container, type) {
+                    container.innerHTML = '';
+                    for (const item of cardList) {
+                        try {
+                            // Scryfall Fuzzy Search
+                            const scryfallRes = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(item.name)}`);
+                            if (!scryfallRes.ok) continue;
+                            const card = await scryfallRes.json();
+                            
+                            const price = card.prices?.usd || 'N/A';
+                            const imgUrl = card.image_uris?.art_crop || card.image_uris?.normal || '';
+                            const cardLink = card.scryfall_uri || `https://scryfall.com/search?q=${encodeURIComponent(item.name)}`;
+
+                            const trendClass = type === 'up' ? 'trend-up' : 'trend-down';
+                            const trendIcon = type === 'up' ? 'fa-arrow-up' : 'fa-arrow-down';
+                            const trendColor = type === 'up' ? 'text-green-400' : 'text-red-400';
+                            
+                            const html = `
+                                <a href="${cardLink}" target="_blank" class="block bg-slate-700/50 rounded-lg p-3 flex items-center gap-3 ${trendClass} trend-card hover:bg-slate-700 group transition">
+                                    <div class="w-12 h-12 flex-shrink-0 bg-slate-800 rounded overflow-hidden">
+                                        <img src="${imgUrl}" alt="${card.name}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-grow min-w-0">
+                                        <h4 class="font-bold text-white text-sm truncate group-hover:text-amber-400 transition">${card.name}</h4>
+                                        <p class="text-xs text-gray-400 truncate">${card.type_line}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-mono text-amber-400 font-bold">$${price}</div>
+                                        <div class="text-xs ${trendColor} font-bold mt-1">
+                                            <i class="fa-solid ${trendIcon}"></i> ${item.percentage}
+                                        </div>
+                                    </div>
+                                </a>
+                            `;
+                            container.innerHTML += html;
+                        } catch (err) {
+                            console.error("Scryfall fetch error for", item.name, err);
+                        }
+                    }
+                }
+
+                await Promise.all([
+                    renderCards(marketData.winners, winnersList, 'up'),
+                    renderCards(marketData.losers, losersList, 'down')
+                ]);
+
+            } catch (error) {
+                console.error("Market Data Error:", error);
+                winnersList.innerHTML = '<div class="text-red-400 text-center text-sm">數據載入失敗</div>';
+                losersList.innerHTML = '<div class="text-red-400 text-center text-sm">數據載入失敗</div>';
+            } finally {
+                refreshBtn.disabled = false;
+                spinner.classList.remove('fa-spin');
+            }
+        }
+
+        // --- Existing Life Counter Logic ---
+        const lifePoints = {
+            1: 40,
+            2: 40,
+            3: 40,
+            4: 40
+        };
+
+        function changeLife(player, amount) {
+            lifePoints[player] += amount;
+            updateDisplay(player);
+        }
+
+        function updateDisplay(player) {
+            const display = document.getElementById(`p${player}-life`);
+            display.textContent = lifePoints[player];
+            
+            // Visual cue for low life
+            if (lifePoints[player] <= 10) {
+                display.classList.add('text-red-500');
+                display.classList.remove('text-white');
+            } else {
+                display.classList.add('text-white');
+                display.classList.remove('text-red-500');
+            }
+            
+            // Animation effect
+            display.classList.remove('scale-105');
+            void display.offsetWidth; // trigger reflow
+            display.classList.add('scale-105', 'transition', 'duration-100');
+            setTimeout(() => display.classList.remove('scale-105'), 100);
+        }
+
+        function resetLife() {
+            if(confirm("確定要重置所有生命值為 40 嗎？")) {
+                for(let i=1; i<=4; i++) {
+                    lifePoints[i] = 40;
+                    updateDisplay(i);
+                }
+                document.getElementById('dice-result').textContent = "";
+            }
+        }
+
+        function rollDice() {
+            const result = Math.floor(Math.random() * 20) + 1;
+            const display = document.getElementById('dice-result');
+            display.textContent = `你擲出了: ${result}`;
+        }
+    </script>
+</body>
+</html>
